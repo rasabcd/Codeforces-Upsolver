@@ -16,15 +16,17 @@ app.use(cookieParser());
 
 // ✅ CORS configuration
 const allowedOrigins = [
-  "http://localhost:5173",               // local frontend
-  "https://your-frontend.vercel.app"     // deployed frontend
+  "http://localhost:5173", // local frontend
+  "https://your-frontend.vercel.app", // deployed frontend
 ];
 
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE"]
-}));
+app.use(
+  cors({
+    origin: allowedOrigins,
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH"],
+  })
+);
 
 // Routes
 app.use("/api", userRouter);
@@ -38,6 +40,6 @@ app.get("/api/health", (req, res) => {
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, async () => {
-  await connectDB();  // connect to MongoDB Atlas
+  await connectDB(); // connect to MongoDB Atlas
   console.log(`✅ Server started at PORT = ${PORT}`);
 });
