@@ -1,37 +1,36 @@
 import jwt from "jsonwebtoken";
 import User from "../Models/userModel.js";
 import bcrypt from "bcryptjs";
+
 const login = async (req, res) => {
   try {
     const { username, password } = req.body;
     if (!username || !password) {
-      return res.status(400).json({ message: "All fileds are required" });
+      return res.status(400).json({ message: "All fields are required" });
     }
+
     const user = await User.findOne({ username });
     if (!user) {
-      return res.status(400).json({
-        message: "No user with this username",
-      });
+      return res.status(400).json({ message: "No user with this username" });
     }
+
     const isPasswordMatched = await bcrypt.compare(password, user.password);
     if (!isPasswordMatched) {
-      return res.status(400).json({
-        message: "Incorrect password",
-      });
+      return res.status(400).json({ message: "Incorrect password" });
     }
-    const tokenData = {
-      userId: user._id,
-    };
-    const token = await jwt.sign(tokenData, process.env.SECRET_KEY, {
-      expiresIn: "1d",
-    });
+
+    const tokenData = { userId: user._id };
+    const token = await jwt.sign(tokenData, process.env.SECRET_KEY, { expiresIn: "1d" });
+
+    const isProd = process.env.NODE_ENV === "production";
+
     return res
       .status(200)
       .cookie("token", token, {
-        maxAge: 1 * 24 * 60 * 60 * 1000,
+        maxAge: 24 * 60 * 60 * 1000, // 1 day
         httpOnly: true,
-        secure: true,
-        sameSite: "None",
+        secure: isProd,             // only true in production
+        sameSite: isProd ? "None" : "Lax",
       })
       .json({
         _id: user._id,
@@ -44,4 +43,5 @@ const login = async (req, res) => {
     return res.status(500).json({ message: "Server error" });
   }
 };
+
 export default login;
