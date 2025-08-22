@@ -7,13 +7,14 @@ import axios from "axios";
 
 const HomePage = () => {
   const [profile, setProfile] = useState(null);
-
+  const API = import.meta.env.VITE_API_URL;
   useEffect(() => {
     const fetchProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:8000/api/profile", {
+        const res = await axios.get(`${API}/api/profile`, {
           withCredentials: true,
         });
+        console.log(res);
         setProfile(res.data);
         localStorage.setItem("codeforcesHandle", res.data.codeforcesHandle);
       } catch (error) {
