@@ -107,7 +107,7 @@ const TaskList = ({ stats, setStats }) => {
     }
   };
 
- const deleteProblem = async (taskId, problemId) => {
+const deleteProblem = async (taskId, problemId) => {
   try {
     const res = await axios.patch(
       `http://localhost:8000/api/tasks/${taskId}/remove-problem`,
@@ -115,14 +115,14 @@ const TaskList = ({ stats, setStats }) => {
       { withCredentials: true }
     );
 
-    // ✅ Update tasks list
+    const updatedTask = res.data.task; // ✅ use the task object returned
+
     setTasks((prev) =>
       prev.map((task) =>
-        task._id === taskId ? { ...task, problems: res.data.problems } : task
+        task._id === taskId ? updatedTask : task
       )
     );
 
-    // ✅ Remove from solvedProblems if it exists
     setSolvedProblems((prev) => {
       const updated = { ...prev };
       if (updated[problemId]) {
@@ -138,6 +138,7 @@ const TaskList = ({ stats, setStats }) => {
     toast.error("Failed to remove problem");
   }
 };
+
 
   const updateDeadline = async (taskId) => {
     try {

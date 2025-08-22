@@ -11,19 +11,21 @@ export const removeProblemFromTask = async (req, res) => {
   }
 
   try {
-    // Remove problem from task's list
     const task = await Task.findByIdAndUpdate(
       taskId,
       { $pull: { problems: problemId } },
       { new: true }
-    );
+    ).populate("problems"); // <-- important: populate so names/links come back
 
     if (!task) return res.status(404).json({ message: "Task not found" });
 
-    // Delete the problem document itself
+    // ❌ optional: remove this if problems can exist in multiple tasks
     await Problem.findByIdAndDelete(problemId);
 
-    res.status(200).json({ message: "Problem removed from task and deleted", task });
+    res.status(200).json({
+      message: "Problem removed from task and deleted",
+      task, // now includes full problem objects, not just ObjectIds
+    });
   } catch (error) {
     console.error("Error removing problem:", error);
     res.status(500).json({ message: "Internal Server Error" });
